@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+    <mapping map-id="ReserveInWH_Input_1_0_0_Reserve_Request_1_0_0_Mapping">
+        <class-a>com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Input_1_0_0</class-a>
+        <class-b>com.ekart.orchestrator.schema.payload.wh.reserve.Reserve_Request_1_0_0</class-b>
+        <field>
+            <a>reserveRequestId</a>
+            <b>client_reservation_request_id</b>
+        </field>
+        <field map-id="ReserveInWH_1_0_0_Action_ItemEntity_Reserve_1_0_0_Payload_Item_Mapping">
+            <a>items[0]</a>
+            <b>this</b>
+        </field>
+    </mapping>
+    <mapping map-id="ReserveInWH_1_0_0_Action_ItemEntity_Reserve_1_0_0_Payload_Item_Mapping">
+        <class-a>com.ekart.domain.model.entity.Item</class-a>
+        <class-b>com.ekart.orchestrator.schema.payload.wh.reserve.Reserve_Request_1_0_0</class-b>
+        <field>
+            <a>itemIdentifier.groupID</a>
+            <b>items[0].fsn</b>
+        </field>
+        <field>
+            <a>itemIdentifier.batchID</a>
+            <b>items[0].sku</b>
+        </field>
+        <field>
+            <a>itemIdentifier.ownerID</a>
+            <b>items[0].owner_id</b>
+        </field>
+        <field custom-converter="com.ekart.orchestrator.core.converter.AddToListConverter">
+            <a>itemIdentifier.uniqueID</a>
+            <b>items[0].item_ids</b>
+            <b-hint>java.util.ArrayList</b-hint>
+        </field>
+    </mapping>
+    <mapping map-id="Reserve_Response_1_0_0_ReserveInWH_Output_1_0_0_Mapping">
+        <class-a>com.ekart.orchestrator.schema.payload.wh.reserve.Reserve_Response_1_0_0</class-a>
+        <class-b>com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Output_1_0_0</class-b>
+        <field custom-converter="com.ekart.orchestrator.core.converter.SpelEvaluator"
+               custom-converter-param="{query:'failed_items.isEmpty()?true:false','returnNullOnFailure':true}">
+            <a>this</a>
+            <b>isReserved</b>
+        </field>
+    </mapping>
+</mappings>

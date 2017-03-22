@@ -1,0 +1,79 @@
+{
+  "actionIdentifier": "ReserveInWH",
+  "version": "1.0.0",
+  "actionClass": "com.ekart.ae.base.core.action.DefaultActionImpl",
+  "actionConfig": {
+    "actionDataModel": {
+      "inputModel": {
+        "className": "com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Input_1_0_0",
+        "type": "ENTITY",
+        "schema": "{\"reference\":\"com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Input_1_0_0\",\"type\":\"object\",\"properties\":{\"items\":{\"reference\":\"com.ekart.domain.model.entity.Item\",\"type\":\"array\"},\"warehouseId\":{\"reference\":\"java.lang.String\",\"type\":\"object\"},\"reserveRequestId\":{\"reference\":\"java.lang.String\",\"type\":\"object\"}}}"
+      },
+      "outputModel": {
+        "className": "com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Output_1_0_0",
+        "type": "ENTITY",
+        "schema": "{\"reference\":\"com.ekart.orchestrator.schema.action.wh.reserve.ReserveInWH_Output_1_0_0\",\"type\":\"object\",\"properties\":{\"isReserved\":{\"reference\":\"java.lang.Boolean\",\"type\":\"object\"}}}"
+      }
+    },
+    "dataSources": {
+      "source": {
+        "dataSourceClass": "com.ekart.ae.base.core.datasource.impl.ActionBasedDataSource",
+        "configType": "com.ekart.ae.base.commons.config.ActionDataSourceConfig",
+        "dataSourceModel": {
+          "className": "com.ekart.orchestrator.schema.bs.%s",
+          "params": [
+            "[bsCode]"
+          ],
+          "type": "ENTITY"
+        },
+        "actionDataSourceConfig": {
+          "actionIdentifier": "GetSRDataFromSRMS",
+          "version": "1.0.0"
+        }
+      }
+    },
+    "callHandler": {
+      "handler": "com.ekart.ae.base.core.callhandler.impl.RestCallHandler",
+      "configType": "com.ekart.ae.base.commons.config.RestCallHandlerConfig",
+      "restCallHandlerConfig": {
+        "format": "JSON",
+        "url": "<%warehouse.b2b.baseurl%>/warehouses/%s/reservation_request",
+        "urlParams": [
+          "warehouseId"
+        ],
+        "requestPayload": {
+          "className": "com.ekart.orchestrator.schema.payload.wh.reserve.Reserve_Request_1_0_0",
+          "type": "DEFAULT",
+          "schema": "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"properties\":{\"client_request_id\":{\"type\":\"string\"},\"client_reservation_request_id\":{\"type\":\"string\"},\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"fsn\":{\"type\":\"string\"},\"sku\":{\"type\":\"string\"},\"owner_id\":{\"type\":\"string\"},\"item_ids\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"fsn\",\"sku\",\"owner_id\",\"item_ids\"]}}},\"required\":[\"client_request_id\",\"client_reservation_request_id\",\"items\"]}"
+        },
+        "requestMappingId": "ReserveInWH_Input_1_0_0_Reserve_Request_1_0_0_Mapping",
+        "responsePayload": {
+          "className": "com.ekart.orchestrator.schema.payload.wh.reserve.Reserve_Response_1_0_0",
+          "type": "DEFAULT",
+          "schema": "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"properties\":{\"reservation_request_id\":{\"type\":\"string\"},\"reserved_items\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"failed_items\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"reservation_request_id\",\"reserved_items\",\"failed_items\"]}"
+        },
+        "responseMappingId": "Reserve_Response_1_0_0_ReserveInWH_Output_1_0_0_Mapping",
+        "callType": "POST",
+        "headers": {
+          "content-type": [
+            "application/json"
+          ]
+        },
+        "successCodes": [
+          200,
+          201,
+          202
+        ],
+        "timeout": 1000,
+        "retryCodes": [
+          500
+        ]
+      }
+    },
+    "failureActionConfig": {
+      "actionIdentifier": "TransitToNextStateInSync",
+      "version": "1.0.0",
+      "mappingId": "ItemReservationFailedStateMapping"
+    }
+  }
+}
